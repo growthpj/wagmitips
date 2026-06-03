@@ -5,8 +5,8 @@ import base64
 import json
 import os
 import re
-import subprocess
 import sys
+import urllib.error
 import urllib.request
 from datetime import datetime, timezone
 from io import BytesIO
@@ -26,24 +26,24 @@ SLACK_WEBHOOK = os.environ["SLACK_WEBHOOK_URL"]
 
 
 def curl_sheet(action):
-    url = f"{SHEET_ENDPOINT}?secret={SHEET_SECRET}&action={action}"
-    result = subprocess.run(
-        ["bash", "-c", f'REDIRECT_URL=$(curl -s "{url}" -w "%{{redirect_url}}" -o /dev/null 2>&1) && curl -s "$REDIRECT_URL"'],
-        capture_output=True, text=True, check=True
-    )
-    return json.loads(result.stdout)
+    """GET request to Apps Script — urllib follows 302 automatically."""
+    url = f"{SHEET_ENDPOINT}?secret={urllib.request.quote(SHEET_SECRET, safe='')}&action={action}"
+    req = urllib.request.Request(url, headers={"User-Agent": "wagmitips-writer/1.0"})
+    with urllib.request.urlopen(req, timeout=30) as resp:
+        return json.loads(resp.read().decode())
 
 
 def post_sheet(payload):
-    body = json.dumps({**payload, "secret": SHEET_SECRET}).replace("'", "'\\''")
-    script = (
-        f"REDIRECT_URL=$(curl -s -X POST '{SHEET_ENDPOINT}' "
-        f"-H 'Content-Type: application/json' "
-        f"-d '{body}' "
-        f"-w '%{{redirect_url}}' -o /dev/null 2>&1) && curl -s \"$REDIRECT_URL\""
+    """POST request to Apps Script — urllib follows 302 to echo URL automatically."""
+    body = json.dumps({**payload, "secret": SHEET_SECRET}).encode()
+    req = urllib.request.Request(
+        SHEET_ENDPOINT,
+        data=body,
+        headers={"Content-Type": "application/json", "User-Agent": "wagmitips-writer/1.0"},
+        method="POST",
     )
-    result = subprocess.run(["bash", "-c", script], capture_output=True, text=True, check=True)
-    return json.loads(result.stdout)
+    with urllib.request.urlopen(req, timeout=30) as resp:
+        return json.loads(resp.read().decode())
 
 
 def api_call(url, method="GET", headers=None, data=None):

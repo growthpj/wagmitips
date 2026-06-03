@@ -3,8 +3,8 @@
 
 import json
 import os
-import subprocess
 import sys
+import urllib.error
 import urllib.request
 import xml.etree.ElementTree as ET
 from datetime import datetime, timezone
@@ -18,52 +18,52 @@ RSS_FEEDS = [
     "https://techcrunch.com/category/artificial-intelligence/feed/",
     "https://venturebeat.com/category/ai/feed/",
     "https://www.theverge.com/rss/ai-artificial-intelligence/index.xml",
-    "https://feeds.feedburner.com/oreilly/radar",
     "https://huggingface.co/blog/feed.xml",
+    "https://feeds.feedburner.com/oreilly/radar",
 ]
 
 
 def sheet_get(action):
-    url = f"{SHEET_ENDPOINT}?secret={SHEET_SECRET}&action={action}"
-    result = subprocess.run(
-        ["bash", "-c", f'REDIRECT_URL=$(curl -s "{url}" -w "%{{redirect_url}}" -o /dev/null 2>&1) && curl -s "$REDIRECT_URL"'],
-        capture_output=True, text=True, check=True
-    )
-    return json.loads(result.stdout)
+    """GET request to Apps Script — urllib follows the 302 redirect automatically."""
+    url = f"{SHEET_ENDPOINT}?secret={urllib.request.quote(SHEET_SECRET, safe='')}&action={action}"
+    req = urllib.request.Request(url, headers={"User-Agent": "wagmitips-researcher/1.0"})
+    with urllib.request.urlopen(req, timeout=30) as resp:
+        return json.loads(resp.read().decode())
 
 
 def sheet_post(payload):
-    body = json.dumps({**payload, "secret": SHEET_SECRET})
-    script = (
-        f"REDIRECT_URL=$(curl -s -X POST '{SHEET_ENDPOINT}' "
-        f"-H 'Content-Type: application/json' "
-        f"-d '{body}' "
-        f"-w '%{{redirect_url}}' -o /dev/null 2>&1) && curl -s \"$REDIRECT_URL\""
+    """POST request to Apps Script — urllib follows 302 to echo URL automatically."""
+    body = json.dumps({**payload, "secret": SHEET_SECRET}).encode()
+    req = urllib.request.Request(
+        SHEET_ENDPOINT,
+        data=body,
+        headers={"Content-Type": "application/json", "User-Agent": "wagmitips-researcher/1.0"},
+        method="POST",
     )
-    result = subprocess.run(["bash", "-c", script], capture_output=True, text=True, check=True)
-    return json.loads(result.stdout)
+    with urllib.request.urlopen(req, timeout=30) as resp:
+        return json.loads(resp.read().decode())
 
 
 def fetch_rss(url):
     items = []
     try:
-        req = urllib.request.Request(url, headers={"User-Agent": "wagmitips-bot/1.0"})
-        with urllib.request.urlopen(req, timeout=10) as resp:
-            tree = ET.parse(resp)
-        root = tree.getroot()
+        req = urllib.request.Request(url, headers={"User-Agent": "wagmitips-researcher/1.0"})
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            content = resp.read()
+        root = ET.fromstring(content)
         ns = {"atom": "http://www.w3.org/2005/Atom"}
-        # RSS 2.0
         for item in root.findall(".//item")[:8]:
-            title = item.findtext("title", "")
-            desc = item.findtext("description", "")
+            title = item.findtext("title", "").strip()
+            desc = (item.findtext("description", "") or "").strip()[:300]
             pub = item.findtext("pubDate", "")
-            items.append(f"TITLE: {title}\nDESC: {desc[:300]}\nDATE: {pub}")
-        # Atom
+            if title:
+                items.append(f"TITLE: {title}\nDESC: {desc}\nDATE: {pub}")
         if not items:
             for entry in root.findall(".//atom:entry", ns)[:8]:
-                title = entry.findtext("atom:title", "", ns)
-                summary = entry.findtext("atom:summary", "", ns)
-                items.append(f"TITLE: {title}\nDESC: {summary[:300]}")
+                title = (entry.findtext("atom:title", "", ns) or "").strip()
+                summary = (entry.findtext("atom:summary", "", ns) or "").strip()[:300]
+                if title:
+                    items.append(f"TITLE: {title}\nDESC: {summary}")
     except Exception as e:
         print(f"  Warning: could not fetch {url}: {e}", file=sys.stderr)
     return items
@@ -71,6 +71,7 @@ def fetch_rss(url):
 
 def main():
     # 1. Get existing rows to avoid duplicates
+    print("Fetching existing sheet rows...")
     existing = sheet_get("getRows")
     existing_titles = [r.get("Article Title", "") for r in existing.get("rows", [])]
     print(f"Existing rows: {len(existing_titles)}")
@@ -83,48 +84,52 @@ def main():
         all_items.extend(items)
         print(f"  {feed_url}: {len(items)} items")
 
+    if not all_items:
+        print("WARNING: No RSS items fetched. Proceeding with Claude web knowledge.", file=sys.stderr)
+
     today = datetime.now(timezone.utc).strftime("%B %Y")
     existing_str = "\n".join(f"- {t}" for t in existing_titles) or "(none)"
-    articles_str = "\n\n".join(all_items[:40])
+    articles_str = "\n\n".join(all_items[:40]) if all_items else "(no RSS items fetched — use your knowledge of recent AI news)"
 
     # 3. Ask Claude to pick 3 stories and write briefs
     client = anthropic.Anthropic()
     prompt = f"""You are an AI news editor for wagmi.tips. Today is {today}.
 
-Here are article titles already in our Google Sheet (avoid duplicating these exact events):
+Article titles already in our Google Sheet (do NOT duplicate these exact events):
 {existing_str}
 
-Here are recent articles from AI news RSS feeds:
+Recent articles from AI news RSS feeds:
 {articles_str}
 
 Your task: pick the 3 strongest, most newsworthy AI stories NOT already covered above.
-Only skip a story if it covers the exact same specific event already in the list.
-Different angles on the same company are fine.
+Only skip a story if it covers the exact same specific event. Different angles on same company are fine.
 
-For each of the 3 stories, write:
-1. Keyword: main SEO search phrase (short, natural language)
+For each story write:
+1. Keyword: main SEO search phrase (short, natural)
 2. Article Title: original blog title (do NOT copy the RSS headline)
-3. Article Summary: 3-5 sentences covering what happened, why it matters, who is affected
+3. Article Summary: 3-5 sentences — what happened, why it matters, who is affected
 4. Article Outline: 6-8 point outline for the writing agent
 
-Respond with ONLY a JSON array of exactly 3 objects with keys: Keyword, Article Title, Article Summary, Article Outline.
-No markdown, no explanation — just the raw JSON array."""
+Respond with ONLY a valid JSON array of exactly 3 objects with keys:
+Keyword, Article Title, Article Summary, Article Outline
+
+No markdown fences, no explanation — raw JSON only."""
 
     print("Asking Claude to select and write 3 article briefs...")
     response = client.messages.create(
         model="claude-sonnet-4-6",
         max_tokens=4096,
-        messages=[{"role": "user", "content": prompt}]
+        messages=[{"role": "user", "content": prompt}],
     )
 
     raw = response.content[0].text.strip()
-    # Strip markdown code fences if present
     if raw.startswith("```"):
-        raw = raw.split("\n", 1)[1]
-        raw = raw.rsplit("```", 1)[0]
+        raw = raw.split("\n", 1)[1].rsplit("```", 1)[0].strip()
 
     rows = json.loads(raw)
-    assert len(rows) == 3, f"Expected 3 rows, got {len(rows)}"
+    if len(rows) != 3:
+        print(f"ERROR: Expected 3 rows, got {len(rows)}: {raw}", file=sys.stderr)
+        sys.exit(1)
 
     # 4. Append to sheet
     print("Appending rows to Google Sheet...")
@@ -132,7 +137,7 @@ No markdown, no explanation — just the raw JSON array."""
     print(f"Sheet response: {json.dumps(result)}")
 
     if not result.get("success"):
-        print(f"ERROR: {result.get('error')}", file=sys.stderr)
+        print(f"ERROR: Sheet rejected rows: {result.get('error')}", file=sys.stderr)
         sys.exit(1)
 
     print("\n=== Research Complete ===")
