@@ -14,15 +14,15 @@ from io import BytesIO
 import anthropic
 from PIL import Image
 
-SHEET_ENDPOINT = os.environ["GOOGLE_SHEET_ENDPOINT"]
-SHEET_SECRET = os.environ["GOOGLE_SHEET_API_SECRET"]
-OPENAI_API_KEY = os.environ["OPENAI_API_KEY"]
-GITHUB_TOKEN = os.environ["GITHUB_TOKEN"]
+SHEET_ENDPOINT = os.environ["GOOGLE_SHEET_ENDPOINT"].strip()
+SHEET_SECRET = os.environ["GOOGLE_SHEET_API_SECRET"].strip()
+OPENAI_API_KEY = os.environ["OPENAI_API_KEY"].strip()
+GITHUB_TOKEN = os.environ["GITHUB_TOKEN"].strip()
 GITHUB_OWNER = "growthpj"
 GITHUB_REPO = "wagmitips"
 GITHUB_BRANCH = "main"
-WAGMI_API_KEY = os.environ["WAGMI_ARTICLE_API_KEY"]
-SLACK_WEBHOOK = os.environ["SLACK_WEBHOOK_URL"]
+WAGMI_API_KEY = os.environ["WAGMI_ARTICLE_API_KEY"].strip()
+SLACK_WEBHOOK = os.environ["SLACK_WEBHOOK_URL"].strip()
 
 
 def curl_sheet(action):
@@ -97,7 +97,7 @@ def generate_image(title, summary=""):
         "can be placed there cleanly without overlapping key visual elements."
     )
     payload = {
-        "model": "gpt-image-1",
+        "model": "gpt-image-2",
         "prompt": prompt,
         "size": "1536x1024",
         "quality": "medium",

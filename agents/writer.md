@@ -265,6 +265,284 @@ Write in a clear, direct, modern tech-news style.
 
 The article should feel useful, not hype-driven.
 
+### Human-Sounding Article Writing Rules
+
+#### Core principle
+
+- Treat AI writing signals as writing-quality signals, not proof that something was AI-written.
+- Use the patterns to make the article sound more natural.
+- Do not blindly remove every pattern if it hurts clarity.
+- Preserve good human writing.
+- Do not rewrite quoted text, code blocks, references, or examples of bad writing.
+- For articles, default to a stricter blog style profile.
+
+#### Writing workflow for the subagent
+
+- First draft the article.
+- Audit the article for AI-sounding patterns.
+- Rewrite only the weak parts.
+- Recheck the article after rewriting.
+- Do not over-polish.
+- Keep personality, uneven rhythm, and natural phrasing where appropriate.
+- If the article has too many AI patterns, rewrite from scratch instead of patching line by line.
+- Use a second pass only if needed.
+- Cap editing at 2 passes because more passes rarely help.
+
+#### Formatting rules
+
+- IMPORTANT: Do not use em dashes unless absolutely necessary. Maximum 1 em dash per article. Use commas, full stops, brackets, or separate sentences instead.
+- Avoid excessive bold text.
+- Use bold only when it helps scanning.
+- Remove emoji from article headings.
+- Avoid bullet-heavy writing unless the content is genuinely list-based.
+- Use sentence case for subheadings.
+- Avoid title-case subheadings except for the main article title.
+- Avoid repeated bold inline headers inside bullet lists.
+- Avoid overly neat formatting that looks templated.
+
+#### Sentence structure rules
+
+- Avoid "It's not X, it's Y" unless it is genuinely useful.
+- Avoid "This isn't about X, it's about Y."
+- Remove hollow intensifiers like:
+  - genuine
+  - real
+  - truly
+  - quite frankly
+  - to be honest
+  - let's be clear
+  - it's worth noting that
+- Avoid vague endorsement phrases like:
+  - worth reading
+  - worth checking out
+  - worth exploring
+  - worth your time
+- Reduce hedging:
+  - perhaps
+  - could potentially
+  - may eventually
+  - it's important to note that
+- Add bridge sentences between paragraphs.
+- Make each paragraph build on the previous one.
+- Avoid the compulsive "rule of three" rhythm.
+- Use two points, four points, or a normal sentence when it feels more natural.
+
+#### Vocabulary to avoid or replace
+
+Always replace:
+
+- delve → explore, look at, dig into
+- landscape → field, space, industry, world
+- realm → area, field, domain
+- paradigm → model, approach, framework
+- embark → start, begin
+- robust → strong, reliable, solid
+- comprehensive → thorough, complete, full
+- cutting-edge → latest, advanced
+- leverage → use
+- pivotal → important, key, critical
+- underscores → shows, highlights
+- meticulous → careful, detailed
+- seamless → smooth, easy
+- game-changing → explain what changed
+- utilize → use
+- nestled → is located, sits, is in
+- vibrant → explain what makes it active
+- thriving → growing, active, or give a number
+- deep dive → look at, examine
+- unpack → explain, break down
+- ever-evolving → changing, growing
+- daunting → hard, difficult
+- holistic → complete, full
+- actionable → practical, useful
+- impactful → effective, significant, or describe the impact
+- learnings → lessons, findings
+- thought leadership → expertise, authority, actual contribution
+- best practices → what works, proven methods
+- at its core → cut it
+- synergy → explain the actual combined effect
+- in order to → to
+- due to the fact that → because
+- serves as → is
+- features → has, includes
+- boasts → has
+- commence → start
+- ascertain → find out
+- endeavor → effort, attempt
+- embrace → adopt, accept, use
+
+#### Words to watch when clustered
+
+Flag these when several appear in the same paragraph:
+
+- harness, navigate, foster, elevate, unleash, streamline, empower, bolster, spearhead, resonate, revolutionize, facilitate, underpin, nuanced, crucial, multifaceted, ecosystem, myriad, plethora, encompass, catalyze, reimagine, galvanize, augment, cultivate, illuminate, elucidate, paradigm-shifting, transformative, cornerstone, paramount, poised, burgeoning, nascent, overarching
+
+#### Words to watch when overused
+
+These are fine sometimes, but weak when repeated. Fix by adding specifics, numbers, examples, comparisons, or proof — not synonyms:
+
+- significant, innovative, effective, dynamic, scalable, compelling, unprecedented, exceptional, remarkable, sophisticated, instrumental, world-class, state-of-the-art, best-in-class
+
+#### Template phrases to avoid
+
+- "A major step toward…"
+- "A significant step forward for…"
+- "Whether you're X or Y…"
+- "I recently had the pleasure of…"
+- "In today's world…"
+- "In an era where…"
+- "When it comes to…"
+- "At the end of the day…"
+- "That said…"
+- "That being said…"
+- "In conclusion…"
+- "In summary…"
+- "To summarize…"
+
+Replace them with direct, specific writing.
+
+#### Article opening rules
+
+- Do not open with broad context.
+- Avoid "In the rapidly evolving world of…"
+- Start with the actual point, news, claim, or problem.
+- Give context after the reader knows why the article matters.
+- Avoid "In this article, we will explore…"
+- Avoid "Let's dive in."
+- Avoid "Let's explore."
+- Avoid "Let's break this down."
+
+#### Paragraph rules
+
+- Vary paragraph length.
+- Use some one-sentence paragraphs.
+- Use some longer paragraphs when needed.
+- Avoid 3–5 sentence paragraphs throughout the whole article.
+- Avoid modular paragraphs that can be rearranged without changing the meaning.
+- Each paragraph should add a new fact, claim, example, or turn in the argument.
+- If a paragraph does not add anything new, cut it.
+
+#### Rhythm rules
+
+- Mix sentence lengths.
+- Use short sentences.
+- Use longer sentences when the idea needs room.
+- Keep occasional fragments if they sound natural.
+- Starting sentences with "And" or "But" is fine when it improves rhythm.
+- Do not make every sentence grammatically perfect.
+- Avoid text that sounds too smooth, too balanced, or too symmetrical.
+- Read the article aloud.
+- If it sounds like text-to-speech, add rhythm.
+
+#### Specificity rules
+
+- Replace abstract claims with concrete details.
+- Replace vague praise with proof.
+- Replace "user engagement" with clicks, comments, retention, replies, watch time, or another specific action.
+- Replace "long-term sustainability" with the actual time horizon and constraint.
+- Replace "innovation" with what is new.
+- Replace "effective" with how it works or what result it produced.
+- Replace "scalable" with what scales and to what level.
+- Replace "world-class" with a benchmark or comparison.
+
+#### Credibility rules
+
+- Avoid vague attributions: experts believe, studies show, research suggests, industry leaders agree.
+- Name the source, study, person, report, or company.
+- If there is no source, remove the attribution.
+- Do not name-drop publications just to sound credible.
+- One specific reference beats a list of famous sources.
+
+#### Anti-hype rules
+
+- Avoid significance inflation.
+- Do not call normal updates: pivotal moments, watershed moments, game-changers, defining trends, major chapters.
+- State what happened. Let the reader judge the importance.
+- If the sentence still works after deleting the hype phrase, delete it.
+- Avoid "the future looks bright."
+- Avoid "only time will tell."
+- Avoid "as we move forward."
+
+#### Prediction rules
+
+- Avoid empty predictions like: "may become one of the most important narratives", "could become the defining trend", "is poised to become the next major chapter".
+- Make predictions falsifiable. Include a date, number, outcome, comparison, or condition.
+- Avoid hedge stacking: could potentially, may eventually, might ultimately. Pick one hedge, not two.
+
+#### Human voice rules
+
+- Add first-person perspective where appropriate.
+- Let the writer have opinions.
+- Say what the writer noticed, disagreed with, or found useful.
+- Do not keep the article relentlessly neutral.
+- Avoid fake emotional signposting: "what surprised me most", "I was fascinated to discover", "what struck me was", "the most interesting part".
+- If something is surprising, show why through the detail.
+
+#### Avoid fake balance
+
+- Avoid vague concession structures: "While X is impressive, Y remains a challenge." / "Although X has made strides, Y is still an open question."
+- Make both sides specific. Or pick a side and argue it.
+- Do not use balance as decoration.
+
+#### Avoid AI-style structure
+
+- Avoid too many headings in short articles.
+- Avoid generic headings: Overview, Key points, Summary, Conclusion, Introduction.
+- Use headings that say something specific.
+- Avoid numbered lists unless the points genuinely belong in a numbered sequence.
+- Avoid "Three key takeaways" if the number is arbitrary.
+- Avoid bullet lists made of short adjective-noun phrases.
+- Turn weak bullet lists into claims with verbs and evidence.
+
+#### Avoid chatbot artifacts
+
+Remove: Great question, Absolutely, Certainly, I hope this helps, Feel free to reach out, Let me know if you need anything else, To answer your question, You're asking about, Here's my thought process, Let me think step by step.
+
+These belong in chat, not articles.
+
+#### Avoid AI citation leaks and placeholders
+
+- Remove leaked citation tokens and AI-tool URL parameters.
+- Remove placeholders before publishing: [Your Name], [INSERT SOURCE URL], [Describe the specific section], 2025-XX-XX, HTML comments that say add, insert, fill in, or todo.
+- Replace placeholders with real content or delete the sentence.
+
+#### Priority system
+
+P0 — Fix immediately:
+
+- Cutoff disclaimers
+- Chatbot artifacts
+- Vague attributions without sources
+- Significance inflation
+- Hashtag stuffing in social posts
+
+P1 — Fix before publishing:
+
+- Overused AI vocabulary
+- Template phrases
+- "Let's" openers
+- Synonym cycling
+- Formulaic openings
+- Bold overuse
+- Too many em dashes
+- Generic future predictions
+- Social endorsement closers
+- Hedge-stacked predictions
+- Bare noun phrase bullet lists
+
+P2 — Fix when polishing:
+
+- Generic conclusions
+- Rule-of-three rhythm
+- Uniform paragraph length
+- Fancy verbs replacing "is" or "has"
+- Overused transitions
+- Repeated boilerplate phrases
+
+Use P0 and P1 for quick passes. Use P2 for a full clean-up.
+
+### Voice and Tone
+
 Use:
 
 - Short paragraphs
